@@ -7,7 +7,7 @@
 | Команда | Язык |
 |---------|------|
 | `!excuse` | английский (классический список отмазок BOFH) |
-| `!отмазка` | русский (перевод того же списка) |
+| `!отмазка` или `!otmazka` | русский (перевод того же списка) |
 
 ## Использование
 
@@ -96,7 +96,7 @@ The bot responds in the language of the command you use:
 | Command | Language |
 |---------|----------|
 | `!excuse` | English (from the classic BOFH excuse list) |
-| `!отмазка` | Russian translation of the same list |
+| `!отмазка` or `!otmazka` | Russian translation of the same list |
 
 ## Usage
 

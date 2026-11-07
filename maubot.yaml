@@ -1,6 +1,6 @@
 maubot: 0.1.0
 id: dev.ters.bofh
-version: 0.1.0
+version: 0.1.1
 license: LGPL-3.0
 modules:
   - bofh

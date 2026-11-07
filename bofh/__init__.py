@@ -22,14 +22,23 @@ _MESSAGES: dict[Locale, dict[str, str]] = {
 
 
 class BofhBot(Plugin):
-    def get_random_excuse(self, filename: str, locale: Locale) -> str:
-        messages = _MESSAGES[locale]
+    async def _read_excuse_file(self, filename: str) -> str:
+        path = f"bofh/{filename}"
+        data: bytes
         try:
-            excuses_text = (
+            data = await self.loader.read_file(path)
+        except AttributeError:
+            data = (
                 importlib.resources.files("bofh")
                 .joinpath(filename)
-                .read_text(encoding="utf-8")
+                .read_bytes()
             )
+        return data.decode("utf-8")
+
+    async def get_random_excuse(self, filename: str, locale: Locale) -> str:
+        messages = _MESSAGES[locale]
+        try:
+            excuses_text = await self._read_excuse_file(filename)
             excuses = [
                 line.strip() for line in excuses_text.strip().split("\n") if line.strip()
             ]
@@ -38,27 +47,31 @@ class BofhBot(Plugin):
                 return messages["empty"]
 
             return random.choice(excuses)
-        except FileNotFoundError:
+        except (FileNotFoundError, KeyError):
             self.log.error("%s not found inside the plugin package!", filename)
             return messages["not_found"]
-        except Exception as e:
-            self.log.error(
-                "An unexpected error occurred reading package resources: %s", e
-            )
+        except Exception:
+            self.log.exception("Failed to read excuse file %s", filename)
             return messages["read_error"]
 
     async def _send_excuse(
         self, evt: MessageEvent, filename: str, locale: Locale
     ) -> None:
         await self.client.set_typing(evt.room_id, True)
-        excuse = self.get_random_excuse(filename, locale)
-        await self.client.send_text(evt.room_id, excuse)
-        await self.client.set_typing(evt.room_id, False)
+        try:
+            excuse = await self.get_random_excuse(filename, locale)
+            await self.client.send_text(evt.room_id, excuse)
+        finally:
+            await self.client.set_typing(evt.room_id, False)
 
     @command.new(name="excuse", help="Get a random BOFH excuse.")
     async def excuse_handler(self, evt: MessageEvent) -> None:
         await self._send_excuse(evt, "excuses.txt", "en")
 
-    @command.new(name="отмазка", help="Случайная системная отмазка.")
+    @command.new(
+        name="отмазка",
+        help="Случайная системная отмазка.",
+        aliases=("otmazka",),
+    )
     async def otmazka_handler(self, evt: MessageEvent) -> None:
         await self._send_excuse(evt, "excuses_ru.txt", "ru")
