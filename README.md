@@ -9,6 +9,8 @@
 | `!excuse` | английский (классический список отмазок BOFH) |
 | `!отмазка` или `!otmazka` | русский (перевод того же списка) |
 
+Имена команд (без `!`) настраиваются в конфиге экземпляра maubot: `command_en`, `command_ru`, `command_ru_aliases`. Значения по умолчанию — в [`base-config.yaml`](base-config.yaml).
+
 ## Использование
 
 В любой комнате, куда добавлен бот:
@@ -51,21 +53,21 @@ chmod +x build.sh
 **Вручную** (из каталога с `maubot.yaml`):
 
 ```bash
-mbc build
+mbc build -o build
 ```
 
-На выходе — файл `.mbp` в корне проекта (игнорируется git).
+На выходе — файл `.mbp` в каталоге [`build/`](build/) (каталог в git не коммитится).
 
 Для разработки можно собрать и сразу залить на сервер:
 
 ```bash
-mbc build -u
+mbc build -o build -u
 ```
 
 ## Установка
 
 1. Соберите плагин, как описано выше.
-2. Загрузите получившийся `.mbp` в веб-интерфейсе вашего экземпляра maubot.
+2. Загрузите `.mbp` из `build/` в веб-интерфейсе вашего экземпляра maubot.
 3. Создайте экземпляр плагина и привяжите его к клиенту (учётной записи бота).
 4. Пригласите бота в комнаты, где нужны отмазки.
 
@@ -97,6 +99,8 @@ The bot responds in the language of the command you use:
 |---------|----------|
 | `!excuse` | English (from the classic BOFH excuse list) |
 | `!отмазка` or `!otmazka` | Russian translation of the same list |
+
+Command names (without `!`) are configurable per plugin instance: `command_en`, `command_ru`, `command_ru_aliases`. Defaults are in [`base-config.yaml`](base-config.yaml).
 
 ## Usage
 
@@ -140,21 +144,21 @@ chmod +x build.sh
 **Manual build** (from the directory that contains `maubot.yaml`):
 
 ```bash
-mbc build
+mbc build -o build
 ```
 
-The output is a `.mbp` file in the project root (ignored by git).
+The output is a `.mbp` file in the [`build/`](build/) directory (not committed to git).
 
 To build and upload in one step during development:
 
 ```bash
-mbc build -u
+mbc build -o build -u
 ```
 
 ## Installation
 
 1. Build the plugin as above.
-2. Upload the generated `.mbp` file to your maubot instance via the web UI.
+2. Upload the `.mbp` from `build/` to your maubot instance via the web UI.
 3. Create an instance of the plugin, assigning it to a client (bot user).
 4. Invite the bot user to any rooms where you want to use it.
 

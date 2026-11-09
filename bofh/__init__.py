@@ -1,6 +1,8 @@
 import importlib.resources
 import random
-from typing import Literal
+from typing import Literal, Type
+
+from mautrix.util.config import BaseProxyConfig, ConfigUpdateHelper
 
 from maubot import Plugin, MessageEvent
 from maubot.handlers import command
@@ -21,10 +23,36 @@ _MESSAGES: dict[Locale, dict[str, str]] = {
 }
 
 
+class Config(BaseProxyConfig):
+    def do_update(self, helper: ConfigUpdateHelper) -> None:
+        helper.copy("command_en")
+        helper.copy("command_ru")
+        helper.copy("command_ru_aliases")
+
+
 class BofhBot(Plugin):
+    async def start(self) -> None:
+        self.config.load_and_update()
+
+    def on_external_config_update(self) -> None:
+        self.config.load_and_update()
+
+    @classmethod
+    def get_config_class(cls) -> Type[BaseProxyConfig]:
+        return Config
+
+    def en_command_name(self) -> str:
+        return self.config["command_en"]
+
+    def ru_command_match(self, val: str) -> bool:
+        primary = str(self.config["command_ru"]).lower()
+        if val == primary:
+            return True
+        aliases = self.config["command_ru_aliases"] or []
+        return val in {str(alias).lower() for alias in aliases}
+
     async def _read_excuse_file(self, filename: str) -> str:
         path = f"bofh/{filename}"
-        data: bytes
         try:
             data = await self.loader.read_file(path)
         except AttributeError:
@@ -64,14 +92,17 @@ class BofhBot(Plugin):
         finally:
             await self.client.set_typing(evt.room_id, False)
 
-    @command.new(name="excuse", help="Get a random BOFH excuse.")
+    @command.new(
+        name=lambda self: self.en_command_name(),
+        help="Get a random BOFH excuse.",
+    )
     async def excuse_handler(self, evt: MessageEvent) -> None:
         await self._send_excuse(evt, "excuses.txt", "en")
 
     @command.new(
-        name="отмазка",
+        name=lambda self: str(self.config["command_ru"]),
         help="Случайная системная отмазка.",
-        aliases=("otmazka",),
+        aliases=ru_command_match,
     )
     async def otmazka_handler(self, evt: MessageEvent) -> None:
         await self._send_excuse(evt, "excuses_ru.txt", "ru")

@@ -1,7 +1,10 @@
-maubot: 0.1.0
-id: dev.ters.bofh
-version: 0.1.1
+maubot: 0.6.0
+id: NEXT.bofh
+version: 0.2.0
 license: LGPL-3.0
 modules:
   - bofh
 main_class: BofhBot
+config: true
+extra_files:
+  - base-config.yaml

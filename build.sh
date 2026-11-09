@@ -8,10 +8,17 @@ if ! command -v mbc >/dev/null 2>&1; then
     exit 1
 fi
 
-echo "Building maubot plugin..."
-mbc build
+build_dir="$(pwd)/build"
+mkdir -p "$build_dir"
 
-mbp="$(ls -t *.mbp 2>/dev/null | head -n 1)"
+if compgen -G "*.mbp" > /dev/null; then
+    mv -f *.mbp "$build_dir/"
+fi
+
+echo "Building maubot plugin into build/..."
+mbc build -o "$build_dir"
+
+mbp="$(ls -t "$build_dir"/*.mbp 2>/dev/null | head -n 1)"
 if [[ -n "${mbp}" ]]; then
-    echo "Created: $(pwd)/${mbp}"
+    echo "Created: ${mbp}"
 fi
